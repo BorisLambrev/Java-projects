@@ -20,10 +20,63 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.datastructures;
+package ca.mcgill.ccccs315.assignment4;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
+/**
+ * ****** Answers to this part's questions *******
+ * 
+ * 1.	What is the time complexity of your implementation? Analyze and explain. 
+ * 
+  Many primitive operations are involved, I will analyze and explain the main ones of the algorithm. LinkedPositionalList having its
+  elements quick sorted. Time complexity of LinkedPositionalList, quicksort method and what the method does to that list. 
+  LinkedPositionalList is O(1) run in constant time. As it explains in the book in page 280, all its methods
+  are run in O(1) in worst case time. The space usage of it is O(n) because all LinkedPositionalList can vary 
+  in size and how many elements are in them. Another reason why it's O(1) is because its based of a DoublyLinkedList, with the
+  addBetween method, and all methods mostly in a doubly linked list are constant time. A new node is always placed between 2 nodes or 
+  at the beginning of the list or at the end of it regardless of the size of the LinkedPositionalList. 
+ 
+  The quick sort method is O(nlogn) at the 1st primitive operation when picking
+  randomly an element, we call pivot. We will use it to sort all number elements from left of pivot if they are smaller than the pivot and 
+  all numbers bigger than pivot to the right of the pivot. Choosing the pivot is random based and we need the size of a list (Stack, 
+  Array or LinkedList), because it all varies how many element numbers we have behind the pivot and after the pivot. All elements get moved
+  around in order to compare them as much as possible. 
+  
+  For in-place quick sort, it is O(logn). We compare elements by dividing the list in 2 sublists from the pivot point all left of
+  the pivot is smaller numbers and right of the pivot are bigger numbers than the pivot. Each sublist, self-sorts itself where elements 
+  compare themselves in their own sublist then later merged back to the list they compare one last time to get the proper sorting done. A lot
+  of swapping is done between each elements until all numbers are sorted in order from smallest to biggest. The recursive method in a quick
+  sort() also explains why its O(logn), we make the sublist smaller by sublists length - 1. We do so in order to change the indice or position
+  of each element to compare it with every other element. As the method calls itself, we use - 1 or + 1 in order to go one indice back or
+  one indice after, otherwise the recursion will go on looping endlessly. In page 555 of our book, if list has elements already sorted 
+  or reverse sorted, in-place quick sort will be O(n^2) in time worst case. According to GeeksforGeeks, This applies for both 
+  Arrays and DoublyLinkedLists if they have elements that are already sorted and use quicksort() its a worst case of O(n^2). 
+  We will only check the size and the order of the elements in the list and for the rest its a best case or average case of O(nlogn) if
+  elements are not sorted.
+  
+  https://www.geeksforgeeks.org/java-program-for-quicksort-on-doubly-linked-list/
+ *
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
+
+import dsaj.sorting.QuickSort;
+import net.datastructures.PositionalList;
+import net.datastructures.Queue;
+import net.datastructures.LinkedQueue;
+import net.datastructures.Position;
 
 /**
  * Implementation of a positional list stored as a doubly linked list.
@@ -132,7 +185,9 @@ public class LinkedPositionalList<E> implements PositionalList<E> {
     trailer = new Node<>(null, header, null);   // trailer is preceded by header
     header.setNext(trailer);                    // header is followed by trailer
   }
-
+  
+  Integer[] arr;
+  
   // private utilities
   /**
    * Verifies that a Position belongs to the appropriate class, and is
@@ -424,13 +479,80 @@ public class LinkedPositionalList<E> implements PositionalList<E> {
     return sb.toString();
   }
   
-  public static void main(String[] args) {
+  /**
+   * Performs an in-place sort of the LinkedPositionalList
+   */
+  public void sort() { 
+	  //Influenced by QuickSort.inplaceQuickSort() method but not calling the method
+	  //The code of quickSort influence is in sortIntegers
+	  Collections.reverseOrder();
+  }
+  
+  public static void sortIntegers(Integer[] iA) {
 	  
-	  LinkedPositionalList<Integer> lpl = new LinkedPositionalList<Integer>();
-	  lpl.addFirst(2);
-	  lpl.addFirst(5);
-	  lpl.addFirst(8);
+	  Random r = new Random();
+	  
+	  // Chooses an element to be a pivot at random between index[0] and index[array.lenght - 1] from the Integer array iA
+	  // Chooses the index and not the value in the index of the array
+	  int pivot = r.nextInt(iA.length) + 0;
+	  
+	  //Divide array in 2 sub-arrays
+	  //(Unfortunately, s1 can raise negative array size exception)
+	  Integer [] s1 = new Integer [pivot - 1];
+	  Integer [] s2 = new Integer [iA.length - pivot];
+	  LinkedPositionalList lpl = new LinkedPositionalList();
+	  
+	  //Tracks s2 indexes
+	  int j = 0;
+	  
+	  for(int i = 0; i < s1.length + s2.length; i++) {
+		  if(i != pivot) {
+			  if(i < s1.length) {
+				  s1[i] = iA[i];
+			  }else {
+				  s2[j] = iA[i];
+				  j++;
+			  }
+		  }
+	  }
+	  
+	  Comparator<Integer> c = Comparator.naturalOrder();
+	  
+	  //If we keep on testing depending what pivot is chosen by the Random class, we end up successfully executing code
+	  //But most times there is an exception raised
+	  QuickSort.quickSortInPlace(s1, c);
+	  QuickSort.quickSortInPlace(s2, c);
+	  
+	  j = 0;
+	  
+	  for(int i = 0; i <= s1.length + s2.length; i++) {
+		  if(i < s1.length) {
+			  lpl.addLast(s1[i]);
+		  }else if(j < s2.length) {
+			  lpl.addLast(s2[j]);
+			  j++;
+		  }
+	  }
+	  
+	  lpl.sort();
 	  
 	  System.out.println(lpl);
   }
+  
+  public static void recursivelySort(Integer[] a, int left, int right) {
+	 
+	  if(a[left] < a[right] && left != a.length && right != 0) {
+		  a[left] = a[right];
+	  }
+	  
+	  recursivelySort(a, left + 1, right - 1);
+  }
+  
+  public static void main(String[] args) {
+	  
+	  //If clicking 'Run LinkedPositionalList' more than once, it executes (0, 6, 8, 33, 35, 44, 9) for that input
+	  Integer[] a = {33,6,0,44,35,8,9,76};
+	  sortIntegers(a);
+  }
+  
 }
